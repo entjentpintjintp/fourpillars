@@ -21,14 +21,34 @@ else
     echo "⚠️ docker-compose not found. Assuming services are running locally."
 fi
 
-# 3. Check for JAR file
-JAR_FILE=FourPillars-0.0.1-SNAPSHOT.jar
-if [ ! -f "$JAR_FILE" ]; then
-    echo "❌ JAR file not found: $JAR_FILE"
-    echo "   Please upload the JAR file to this directory."
+# 3. Build Project (if source code exists)
+PROJECT_ROOT=".."
+JAR_PATH="$PROJECT_ROOT/build/libs/FourPillars-0.0.1-SNAPSHOT.jar"
+
+if [ -f "$PROJECT_ROOT/gradlew" ]; then
+    echo "🔨 Building project with Gradle..."
+    chmod +x "$PROJECT_ROOT/gradlew"
+    (cd "$PROJECT_ROOT" && ./gradlew clean build -x test)
+    
+    if [ $? -ne 0 ]; then
+        echo "❌ Build failed!"
+        exit 1
+    fi
+    echo "✅ Build successful."
+else
+    echo "⚠️ Gradle wrapper not found. Assuming JAR exists."
+    # If no gradle, try to find jar in current dir (legacy support)
+    if [ -f "FourPillars-0.0.1-SNAPSHOT.jar" ]; then
+        JAR_PATH="FourPillars-0.0.1-SNAPSHOT.jar"
+    fi
+fi
+
+# 4. Check for JAR file
+if [ ! -f "$JAR_PATH" ]; then
+    echo "❌ JAR file not found at: $JAR_PATH"
     exit 1
 fi
 
-# 4. Run Application
+# 5. Run Application
 echo "🚀 Starting FourPillars Application..."
-java -jar $JAR_FILE
+java -jar "$JAR_PATH"
