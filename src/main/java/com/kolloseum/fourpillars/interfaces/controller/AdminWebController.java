@@ -33,7 +33,11 @@ public class AdminWebController {
     }
 
     @GetMapping("/totp")
-    public String totpPage(java.security.Principal principal, HttpSession session, Model model) {
+    public String totpPage(java.security.Principal principal,
+            HttpSession session,
+            Model model,
+            @RequestParam(required = false) Boolean reset) {
+
         // 1. Local Admin Bypass
         if (principal != null && principal.getName().equals("admin")) {
             session.setAttribute("TOTP_VERIFIED", true);
@@ -53,13 +57,21 @@ public class AdminWebController {
                 return "redirect:/admin/login?error=not_admin";
             }
 
+            // EMERGENCY RESET (via URL param)
+            if (Boolean.TRUE.equals(reset)) {
+                user = user.disableTotp();
+                userRepository.save(user); // Force clear secret in DB
+                session.removeAttribute("TOTP_VERIFIED");
+                session.removeAttribute("TEMP_TOTP_SECRET");
+            }
+
             // Already verified?
             if (session.getAttribute("TOTP_VERIFIED") != null) {
                 return "redirect:/admin/terms";
             }
 
-            // Setup needed? (If secret is null)
-            if (user.getTotpSecret() == null) {
+            // Setup needed? (If secret is null OR empty)
+            if (user.getTotpSecret() == null || user.getTotpSecret().trim().isEmpty()) {
                 String tempSecret = (String) session.getAttribute("TEMP_TOTP_SECRET");
                 if (tempSecret == null) {
                     tempSecret = totpService.generateSecret();
