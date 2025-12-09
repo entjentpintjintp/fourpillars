@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.kolloseum'
+version = '0.0.1-SNAPSHOT'
+description = 'FourPillars'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Spring Security (OAuth2 포함)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // MariaDB 드라이버
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Basic Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // WebClient (OAuth API 호출용)
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Time4J (고급 날짜/시간 라이브러리(음력 계산용))
+    implementation 'net.time4j:time4j-base:5.9.4'
+
+    // Apache POI - Excel 처리를 위해 필수
+    implementation 'org.apache.poi:poi:5.5.0'
+    implementation 'org.apache.poi:poi-ooxml:5.5.0'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+
+    // Monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Rate Limiting
+    implementation 'com.bucket4j:bucket4j-core:8.10.1'
+    implementation 'com.bucket4j:bucket4j-redis:8.10.1'
+    implementation('com.warrenstrange:googleauth:1.5.0') {
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    
+    // Swagger / OpenAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+
+    // Thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // Jsoup (HTML Sanitizer)
+    implementation 'org.jsoup:jsoup:1.17.2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

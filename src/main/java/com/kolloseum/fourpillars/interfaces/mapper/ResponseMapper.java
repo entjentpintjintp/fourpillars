@@ -1,0 +1,44 @@
+package com.kolloseum.fourpillars.interfaces.mapper;
+
+import com.kolloseum.fourpillars.interfaces.dto.response.*;
+import com.kolloseum.fourpillars.application.dto.*;
+
+public class ResponseMapper {
+
+    // AuthTokenInput → AuthTokenResponse
+    public static AuthTokenResponse toAuthTokenResponse(AuthTokenInput input) {
+        return AuthTokenResponse.of(input.getAccessToken(), input.getRefreshToken());
+    }
+
+    // AuthTermsCheckQuery → AuthTermsCheckResponse
+    public static AuthTermsCheckResponse toAuthTermsCheckResponse(AuthTermsCheckQuery query) {
+        return AuthTermsCheckResponse.of(query.isCompletedProfile(), query.isLatestTermsAgreed());
+    }
+
+    // AuthTermsContentQuery → AuthTermsContentResponse
+    public static AuthTermsContentResponse toAuthTermsContentResponse(AuthTermsContentQuery query) {
+        return AuthTermsContentResponse.of(
+                AuthTermsContentResponse.TermsInfo.of(query.getServiceTermsContent(), query.getServiceTermsVersion()),
+                AuthTermsContentResponse.TermsInfo.of(query.getPrivacyTermsContent(), query.getPrivacyTermsVersion()));
+    }
+
+    // UserQuery → UserProfileResponse
+    public static UserProfileResponse toUserProfileResponse(UserQuery query) {
+        return UserProfileResponse.of(query.getBirthdate().toString());
+    }
+
+    // FortuneQuery → FortuneResponse
+    public static FortuneResponse toFortuneResponse(FortuneQuery query) {
+        return FortuneResponse.of(query.getFortuneContent(), query.getAdviceBox(), query.getSymbol(),
+                query.getSymbolChn());
+    }
+
+    // MonthlyFortuneQuery → MonthlyFortuneResponse
+    public static MonthlyFortuneResponse toMonthlyFortuneResponse(MonthlyFortuneQuery query) {
+        return MonthlyFortuneResponse.of(
+                query.getAffection(),
+                query.getWealth(),
+                query.getMisc());
+    }
+
+}
