@@ -30,7 +30,8 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            # HTTPS 강제 적용 (Proxy 문제 해결용)
+            redirect-uri: "https://www.kolloseum.com/admin/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-name: Google
 
