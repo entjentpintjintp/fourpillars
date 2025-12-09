@@ -89,8 +89,26 @@
 
 <body>
     <div class="login-container">
-        <h1>Two-Factor Authentication</h1>
-        <p style="margin-bottom: 1.5rem; color: #666;">Please enter the 6-digit code from your authenticator app.</p>
+
+        <!-- Setup Mode -->
+        <div th:if="${isSetup}">
+            <h1>Setup 2FA</h1>
+            <p style="margin-bottom: 1rem; color: #666;">Scan this QR code with your authenticator app.</p>
+
+            <div id="qrcode" style="margin: 0 auto 1.5rem auto; width: 128px;"></div>
+
+            <p style="margin-bottom: 1.5rem; color: #888; font-size: 0.9rem;">
+                Or manually enter secret: <br>
+                <code th:text="${secret}" style="background: #f0f0f0; padding: 2px 5px; border-radius: 4px;"></code>
+            </p>
+        </div>
+
+        <!-- Verify Mode -->
+        <div th:unless="${isSetup}">
+            <h1>Two-Factor Authentication</h1>
+            <p style="margin-bottom: 1.5rem; color: #666;">Please enter the 6-digit code from your authenticator app.
+            </p>
+        </div>
 
         <div th:if="${error}" class="error-message">
             <span th:text="${error}">Invalid code</span>
@@ -104,6 +122,17 @@
             <button type="submit">Verify</button>
         </form>
     </div>
+
+    <!-- QRCode Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script th:if="${isSetup}" th:inline="javascript">
+        var qrCodeUrl = /*[[${qrCodeUrl}]]*/ "";
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrCodeUrl,
+            width: 128,
+            height: 128
+        });
+    </script>
 </body>
 
 </html>

@@ -33,27 +33,42 @@ public class AdminWebController {
     }
 
     @GetMapping("/totp")
-    public String totpPage(java.security.Principal principal, HttpSession session) {
+    public String totpPage(java.security.Principal principal, HttpSession session, Model model) {
         // 1. Local Admin Bypass
         if (principal != null && principal.getName().equals("admin")) {
             session.setAttribute("TOTP_VERIFIED", true);
             return "redirect:/admin/terms";
         }
 
-        // 2. OAuth Admin Bypass (Temporary Fix to unblock access)
+        // 2. OAuth Admin
         if (principal instanceof OAuth2User oauth2User) {
             String socialId = oauth2User.getName();
-            // Assuming Provider.GOOGLE for now as it's the main login
             OAuth oAuth = OAuth.of(socialId, Provider.GOOGLE);
 
-            userRepository.findByOAuth(oAuth).ifPresent(user -> {
-                if (user.getRole() == com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
-                    session.setAttribute("TOTP_VERIFIED", true);
-                }
-            });
+            User user = userRepository.findByOAuth(oAuth)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
+            // Check ROLE
+            if (user.getRole() != com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
+                return "redirect:/admin/login?error=not_admin";
+            }
+
+            // Already verified?
             if (session.getAttribute("TOTP_VERIFIED") != null) {
                 return "redirect:/admin/terms";
+            }
+
+            // Setup needed? (If secret is null)
+            if (user.getTotpSecret() == null) {
+                String tempSecret = (String) session.getAttribute("TEMP_TOTP_SECRET");
+                if (tempSecret == null) {
+                    tempSecret = totpService.generateSecret();
+                    session.setAttribute("TEMP_TOTP_SECRET", tempSecret);
+                }
+                String qrCodeUrl = totpService.getQrCodeUrl(tempSecret, "KolloseumAdmin");
+                model.addAttribute("qrCodeUrl", qrCodeUrl);
+                model.addAttribute("secret", tempSecret);
+                model.addAttribute("isSetup", true);
             }
         }
 
@@ -66,11 +81,13 @@ public class AdminWebController {
             HttpSession session,
             Model model) {
 
-        if (principal.getName().equals("admin")) {
+        // 1. Local Admin Bypass
+        if (principal != null && principal.getName().equals("admin")) {
             session.setAttribute("TOTP_VERIFIED", true);
             return "redirect:/admin/terms";
         }
 
+        // 2. OAuth Admin
         if (principal instanceof OAuth2User oauth2User) {
             String socialId = oauth2User.getName();
             OAuth oAuth = OAuth.of(socialId, Provider.GOOGLE);
@@ -78,11 +95,36 @@ public class AdminWebController {
             User user = userRepository.findByOAuth(oAuth)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            if (user.getTotpSecret() != null && totpService.verify(user.getTotpSecret(), code)) {
+            String secretToVerify;
+            boolean isSetup = false;
+
+            if (user.getTotpSecret() != null) {
+                // Normal verification
+                secretToVerify = user.getTotpSecret();
+            } else {
+                // Setup verification (use temp secret)
+                secretToVerify = (String) session.getAttribute("TEMP_TOTP_SECRET");
+                isSetup = true;
+            }
+
+            if (secretToVerify != null && totpService.verify(secretToVerify, code)) {
+                if (isSetup) {
+                    // Save new secret to DB
+                    User updatedUser = user.enableTotp(secretToVerify);
+                    userRepository.save(updatedUser);
+                    session.removeAttribute("TEMP_TOTP_SECRET");
+                }
                 session.setAttribute("TOTP_VERIFIED", true);
                 return "redirect:/admin/terms";
             } else {
                 model.addAttribute("error", "Invalid TOTP code");
+                // If setup failed, we need to show QR code again
+                if (isSetup) {
+                    String qrCodeUrl = totpService.getQrCodeUrl(secretToVerify, "KolloseumAdmin");
+                    model.addAttribute("qrCodeUrl", qrCodeUrl);
+                    model.addAttribute("secret", secretToVerify);
+                    model.addAttribute("isSetup", true);
+                }
                 return "admin/totp";
             }
         }
