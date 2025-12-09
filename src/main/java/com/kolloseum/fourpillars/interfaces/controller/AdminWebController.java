@@ -52,6 +52,11 @@ public class AdminWebController {
             User user = userRepository.findByOAuth(oAuth)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
+            // DEBUG LOGGING
+            System.out.println("DEBUG: User Role = " + user.getRole());
+            System.out.println("DEBUG: User TotpSecret = '" + user.getTotpSecret() + "'");
+            System.out.println("DEBUG: Reset Param = " + reset);
+
             // Check ROLE
             if (user.getRole() != com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
                 return "redirect:/admin/login?error=not_admin";
