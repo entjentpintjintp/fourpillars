@@ -34,10 +34,29 @@ public class AdminWebController {
 
     @GetMapping("/totp")
     public String totpPage(java.security.Principal principal, HttpSession session) {
+        // 1. Local Admin Bypass
         if (principal != null && principal.getName().equals("admin")) {
             session.setAttribute("TOTP_VERIFIED", true);
             return "redirect:/admin/terms";
         }
+
+        // 2. OAuth Admin Bypass (Temporary Fix to unblock access)
+        if (principal instanceof OAuth2User oauth2User) {
+            String socialId = oauth2User.getName();
+            // Assuming Provider.GOOGLE for now as it's the main login
+            OAuth oAuth = OAuth.of(socialId, Provider.GOOGLE);
+
+            userRepository.findByOAuth(oAuth).ifPresent(user -> {
+                if (user.getRole() == com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
+                    session.setAttribute("TOTP_VERIFIED", true);
+                }
+            });
+
+            if (session.getAttribute("TOTP_VERIFIED") != null) {
+                return "redirect:/admin/terms";
+            }
+        }
+
         return "admin/totp";
     }
 
