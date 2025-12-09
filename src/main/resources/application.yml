@@ -55,6 +55,7 @@ oauth:
 management:
   server:
     port: 8081
+    forward-headers-strategy: native
   endpoints:
     web:
       exposure:
