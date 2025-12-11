@@ -59,6 +59,12 @@ public class AdminWebController {
             User user = userRepository.findByOAuth(oAuth)
                     .orElseThrow(() -> new RuntimeException("User not found for ID: " + socialId));
 
+            // CRITICAL: Check ROLE
+            if (user.getRole() != com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
+                System.out.println("WARNING: Access Attempt by Non-Admin: " + socialId);
+                return "redirect:/admin/login?error=not_admin";
+            }
+
             // RESET Logic (For debugging)
             if ("true".equals(reset)) {
                 System.out.println("DEBUG: Executing TOTP RESET");
@@ -136,6 +142,11 @@ public class AdminWebController {
             OAuth oAuth = OAuth.of(socialId, Provider.GOOGLE);
             User user = userRepository.findByOAuth(oAuth)
                     .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // CRITICAL: Check ROLE
+            if (user.getRole() != com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
+                return "redirect:/admin/login?error=not_admin";
+            }
 
             String secretToVerify;
             boolean isSetup = false;
