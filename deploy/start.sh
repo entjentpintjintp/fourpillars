@@ -51,4 +51,4 @@ fi
 
 # 5. Run Application
 echo "🚀 Starting FourPillars Application..."
-java -jar "$JAR_PATH"
+java -Duser.timezone=Asia/Seoul -jar "$JAR_PATH"
