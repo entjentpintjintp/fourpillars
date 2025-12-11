@@ -36,7 +36,10 @@ public class AdminWebController {
     public String totpPage(java.security.Principal principal,
             HttpSession session,
             Model model,
-            @RequestParam(required = false) Boolean reset) {
+            @RequestParam(required = false) Object reset) {
+
+        System.out.println("🔥🔥🔥 CONTROLLER HIT: /admin/totp 🔥🔥🔥");
+        System.out.println("DEBUG: Reset param raw value: " + reset);
 
         // 1. Local Admin Bypass
         if (principal != null && principal.getName().equals("admin")) {
@@ -63,7 +66,8 @@ public class AdminWebController {
             }
 
             // EMERGENCY RESET (via URL param)
-            if (Boolean.TRUE.equals(reset)) {
+            boolean isReset = Boolean.TRUE.equals(reset) || "true".equals(String.valueOf(reset));
+            if (isReset) {
                 user = user.disableTotp();
                 userRepository.save(user); // Force clear secret in DB
                 session.removeAttribute("TOTP_VERIFIED");
