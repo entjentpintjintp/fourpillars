@@ -24,9 +24,9 @@ spring:
     admin:
       context-path: /admin/monitor
       client:
-        url: "http://localhost:${management.server.port}"
+        url: "http://localhost:8080/admin/monitor"
         instance:
-          service-url: "http://localhost:${management.server.port}"
+          service-url: "http://localhost:8080"
           management-url: "http://localhost:${management.server.port}/actuator"
           name: "FourPillars-Server"
   security:
