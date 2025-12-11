@@ -58,10 +58,21 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, metrics
+        include: health, metrics, env, loggers, threaddump, heapdump, info, configprops
   endpoint:
     health:
       show-details: always
+
+spring:
+  boot:
+    admin:
+      context-path: /admin/monitor
+      client:
+        url: "http://localhost:${management.server.port}"
+        instance:
+          service-url: "http://localhost:${management.server.port}"
+          management-url: "http://localhost:${management.server.port}/actuator"
+          name: "FourPillars-Server"
 
 server:
   forward-headers-strategy: native

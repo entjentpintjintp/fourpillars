@@ -93,6 +93,10 @@ dependencies {
 
     // Jsoup (HTML Sanitizer)
     implementation 'org.jsoup:jsoup:1.17.2'
+
+    // Spring Boot Admin (Monitoring)
+    implementation 'de.codecentric:spring-boot-admin-starter-server:3.4.1'
+    implementation 'de.codecentric:spring-boot-admin-starter-client:3.4.1'
 }
 
 tasks.named('test') {
