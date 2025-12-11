@@ -20,6 +20,15 @@ spring:
       host: localhost
       port: 6379
       timeout: 60000
+  boot:
+    admin:
+      context-path: /admin/monitor
+      client:
+        url: "http://localhost:${management.server.port}"
+        instance:
+          service-url: "http://localhost:${management.server.port}"
+          management-url: "http://localhost:${management.server.port}/actuator"
+          name: "FourPillars-Server"
   security:
     oauth2:
       client:
@@ -62,17 +71,6 @@ management:
   endpoint:
     health:
       show-details: always
-
-spring:
-  boot:
-    admin:
-      context-path: /admin/monitor
-      client:
-        url: "http://localhost:${management.server.port}"
-        instance:
-          service-url: "http://localhost:${management.server.port}"
-          management-url: "http://localhost:${management.server.port}/actuator"
-          name: "FourPillars-Server"
 
 server:
   forward-headers-strategy: native
