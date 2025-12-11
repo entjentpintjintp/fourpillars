@@ -25,7 +25,6 @@ public class UserMapper {
                 userEntity.getLastLogin(),
                 userEntity.getCreatedAt(),
                 userEntity.getTotpSecret(),
-                userEntity.isTotpEnabled(),
                 ProfileMapper.toDomain(userEntity.getProfile()),
                 DeviceMapper.toDomain(userEntity.getDevice()),
                 TermsAgreementMapper.toDomainList(userEntity.getTermsAgreements()));
@@ -41,7 +40,6 @@ public class UserMapper {
         entity.setRole(user.getRole());
         entity.setLastLogin(user.getLastLogin());
         entity.setTotpSecret(user.getTotpSecret());
-        entity.setTotpEnabled(user.isTotpEnabled());
 
         if (user.getOAuth() != null) {
             entity.setSocialId(user.getOAuth().getSocialId());

@@ -26,7 +26,6 @@ public class User {
         private final LocalDateTime lastLogin;
         private final LocalDateTime createdAt;
         private final String totpSecret;
-        private final boolean isTotpEnabled;
 
         // 집계 내부 엔티티들
         private final Profile profile;
@@ -42,16 +41,16 @@ public class User {
                                 null,
                                 LocalDateTime.now(),
                                 null,
-                                false,
                                 null,
                                 null,
                                 new ArrayList<>());
         }
 
         public static User restore(UUID id, OAuth oAuth, Role role, LocalDateTime lastLogin,
-                        LocalDateTime createdAt, String totpSecret, boolean isTotpEnabled,
+                        LocalDateTime createdAt, String totpSecret,
                         Profile profile, Device device, List<TermsAgreement> termsAgreements) {
-                return new User(id, oAuth, role, lastLogin, createdAt, totpSecret, isTotpEnabled,
+                // TOTP enabled 여부는 secret 존재 여부로 판단
+                return new User(id, oAuth, role, lastLogin, createdAt, totpSecret,
                                 profile, device,
                                 termsAgreements != null ? new ArrayList<>(termsAgreements) : new ArrayList<>());
         }
@@ -63,7 +62,7 @@ public class User {
                                 : this.profile.update(lunarBirthdate);
 
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
-                                this.totpSecret, this.isTotpEnabled, newProfile, this.device, this.termsAgreements);
+                                this.totpSecret, newProfile, this.device, this.termsAgreements);
         }
 
         public User createOrUpdateDevice(String os_version, String os_name) {
@@ -72,7 +71,7 @@ public class User {
                                 : this.device.update(os_version, os_name);
 
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
-                                this.totpSecret, this.isTotpEnabled, this.profile, newDevice, this.termsAgreements);
+                                this.totpSecret, this.profile, newDevice, this.termsAgreements);
         }
 
         public User agreeToTerms(String termsVersion, TermsType termsType) {
@@ -91,17 +90,17 @@ public class User {
                 newAgreements.add(newAgreement);
 
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
-                                this.totpSecret, this.isTotpEnabled, this.profile, this.device, newAgreements);
+                                this.totpSecret, this.profile, this.device, newAgreements);
         }
 
         public User updateLastLogin() {
                 return new User(this.id, this.oAuth, this.role, LocalDateTime.now(), this.createdAt,
-                                this.totpSecret, this.isTotpEnabled, this.profile, this.device, this.termsAgreements);
+                                this.totpSecret, this.profile, this.device, this.termsAgreements);
         }
 
         public User updateRole(Role newRole) {
                 return new User(this.id, this.oAuth, newRole, this.lastLogin, this.createdAt,
-                                this.totpSecret, this.isTotpEnabled, this.profile, this.device, this.termsAgreements);
+                                this.totpSecret, this.profile, this.device, this.termsAgreements);
         }
 
         public boolean isProfileCompleted() {
@@ -114,18 +113,23 @@ public class User {
                                 .anyMatch(agreement -> agreement.getTermsAgreedVersion().equals(currentTermsVersion));
         }
 
+        // TOTP 관련 로직 간소화: Secret 설정 시 활성화된 것으로 간주
         public User enableTotp(String secret) {
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
-                                secret, true, this.profile, this.device, this.termsAgreements);
+                                secret, this.profile, this.device, this.termsAgreements);
         }
 
         public User initiateTotpSetup(String secret) {
+                // 셋업 시작 시, 아직 영구 저장 전의 임시 상태라면 DB에는 NULL로 유지하거나,
+                // 비즈니스 로직에 따라 Secret을 변경.
+                // 보통 initiate 단계에선 DB user를 업데이트하지 않고 세션에서만 처리하므로 이 메서드는 사용처가 줄어들 수 있음.
+                // 여기서는 Secret을 업데이트하는 형태로 유지.
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
-                                secret, false, this.profile, this.device, this.termsAgreements);
+                                secret, this.profile, this.device, this.termsAgreements);
         }
 
         public User disableTotp() {
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
-                                null, false, this.profile, this.device, this.termsAgreements);
+                                null, this.profile, this.device, this.termsAgreements);
         }
 }

@@ -37,8 +37,6 @@ public class UserEntity extends BaseTimeEntity {
 
         private String totpSecret;
 
-        private boolean isTotpEnabled;
-
         @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
         private ProfileEntity profile;
 
