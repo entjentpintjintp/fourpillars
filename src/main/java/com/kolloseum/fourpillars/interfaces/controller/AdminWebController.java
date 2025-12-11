@@ -9,8 +9,6 @@ import com.kolloseum.fourpillars.domain.model.vo.OAuth;
 import com.kolloseum.fourpillars.domain.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,43 +31,39 @@ public class AdminWebController {
     }
 
     @GetMapping("/totp")
-    public String totpPage(java.security.Principal principal,
+    public String totpPage(org.springframework.security.core.Authentication authentication,
             HttpSession session,
             Model model,
-            @RequestParam(required = false) Object reset) {
+            @RequestParam(required = false) String reset,
+            @RequestParam(required = false) String forceSetup) {
 
-        System.out.println("🔥🔥🔥 CONTROLLER HIT: /admin/totp 🔥🔥🔥");
-        System.out.println("DEBUG: Reset param raw value: " + reset);
+        // Note: Manual check removed; SecurityConfig sends unauth users to /login here
+        // anyway.
+
+        if (authentication == null) {
+            return "redirect:/admin/login";
+        }
 
         // 1. Local Admin Bypass
-        if (principal != null && principal.getName().equals("admin")) {
+        if (authentication.getName().equals("admin")) {
             session.setAttribute("TOTP_VERIFIED", true);
             return "redirect:/admin/terms";
         }
 
-        // 2. OAuth Admin
-        if (principal instanceof OAuth2User oauth2User) {
-            String socialId = oauth2User.getName();
+        // 2. OAuth Admin (Generic Handling)
+        try {
+            String socialId = authentication.getName();
+            System.out.println("DEBUG: Authenticated Social ID = " + socialId);
+
             OAuth oAuth = OAuth.of(socialId, Provider.GOOGLE);
-
             User user = userRepository.findByOAuth(oAuth)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new RuntimeException("User not found for ID: " + socialId));
 
-            // DEBUG LOGGING
-            System.out.println("DEBUG: User Role = " + user.getRole());
-            System.out.println("DEBUG: User TotpSecret = '" + user.getTotpSecret() + "'");
-            System.out.println("DEBUG: Reset Param = " + reset);
-
-            // Check ROLE
-            if (user.getRole() != com.kolloseum.fourpillars.domain.model.enums.Role.ADMIN) {
-                return "redirect:/admin/login?error=not_admin";
-            }
-
-            // EMERGENCY RESET (via URL param)
-            boolean isReset = Boolean.TRUE.equals(reset) || "true".equals(String.valueOf(reset));
-            if (isReset) {
+            // RESET Logic (For debugging)
+            if ("true".equals(reset)) {
+                System.out.println("DEBUG: Executing TOTP RESET");
                 user = user.disableTotp();
-                userRepository.save(user); // Force clear secret in DB
+                userRepository.save(user);
                 session.removeAttribute("TOTP_VERIFIED");
                 session.removeAttribute("TEMP_TOTP_SECRET");
             }
@@ -79,18 +73,43 @@ public class AdminWebController {
                 return "redirect:/admin/terms";
             }
 
-            // Setup needed? (If secret is null OR empty)
-            if (user.getTotpSecret() == null || user.getTotpSecret().trim().isEmpty()) {
+            // STRICT MODE: Determine if Setup is REQUIRED
+            boolean setupRequired = (user.getTotpSecret() == null || user.getTotpSecret().trim().isEmpty());
+
+            // Force Setup Override
+            if ("true".equals(forceSetup)) {
+                setupRequired = true;
+            }
+
+            System.out.println("DEBUG: setupRequired = " + setupRequired);
+
+            // Pass the strict flag to the frontend
+            model.addAttribute("setupRequired", setupRequired);
+
+            if (setupRequired) {
                 String tempSecret = (String) session.getAttribute("TEMP_TOTP_SECRET");
                 if (tempSecret == null) {
                     tempSecret = totpService.generateSecret();
                     session.setAttribute("TEMP_TOTP_SECRET", tempSecret);
                 }
-                String qrCodeUrl = totpService.getQrCodeUrl(tempSecret, "KolloseumAdmin");
-                model.addAttribute("qrCodeUrl", qrCodeUrl);
-                model.addAttribute("secret", tempSecret);
-                model.addAttribute("isSetup", true);
+
+                try {
+                    String qrCodeUrl = totpService.getQrCodeUrl(tempSecret, "KolloseumAdmin");
+                    model.addAttribute("qrCodeUrl", qrCodeUrl);
+                    model.addAttribute("secret", tempSecret);
+                    model.addAttribute("isSetup", true); // Legacy flag for compatibility
+                } catch (Exception e) {
+                    System.err.println("CRITICAL: Failed to generate QR Code URL: " + e.getMessage());
+                    // Frontend will handle the missing qrCodeUrl in Strict Mode
+                }
+            } else {
+                model.addAttribute("isSetup", false);
             }
+
+        } catch (Exception e) {
+            System.err.println("ERROR in TOTP Page: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin/login?error=user_lookup_failed";
         }
 
         return "admin/totp";
@@ -98,48 +117,49 @@ public class AdminWebController {
 
     @PostMapping("/totp/verify")
     public String verifyTotp(@RequestParam Integer code,
-            java.security.Principal principal,
+            org.springframework.security.core.Authentication authentication,
             HttpSession session,
             Model model) {
 
-        // 1. Local Admin Bypass
-        if (principal != null && principal.getName().equals("admin")) {
+        if (authentication == null)
+            return "redirect:/admin/login";
+
+        // 1. Local Admin
+        if (authentication.getName().equals("admin")) {
             session.setAttribute("TOTP_VERIFIED", true);
             return "redirect:/admin/terms";
         }
 
         // 2. OAuth Admin
-        if (principal instanceof OAuth2User oauth2User) {
-            String socialId = oauth2User.getName();
+        try {
+            String socialId = authentication.getName();
             OAuth oAuth = OAuth.of(socialId, Provider.GOOGLE);
-
             User user = userRepository.findByOAuth(oAuth)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             String secretToVerify;
             boolean isSetup = false;
 
+            // Strict determination of secret source
             if (user.getTotpSecret() != null) {
-                // Normal verification
                 secretToVerify = user.getTotpSecret();
             } else {
-                // Setup verification (use temp secret)
                 secretToVerify = (String) session.getAttribute("TEMP_TOTP_SECRET");
                 isSetup = true;
             }
 
             if (secretToVerify != null && totpService.verify(secretToVerify, code)) {
                 if (isSetup) {
-                    // Save new secret to DB
-                    User updatedUser = user.enableTotp(secretToVerify);
-                    userRepository.save(updatedUser);
+                    user = user.enableTotp(secretToVerify);
+                    userRepository.save(user);
                     session.removeAttribute("TEMP_TOTP_SECRET");
                 }
                 session.setAttribute("TOTP_VERIFIED", true);
                 return "redirect:/admin/terms";
             } else {
                 model.addAttribute("error", "Invalid TOTP code");
-                // If setup failed, we need to show QR code again
+                model.addAttribute("setupRequired", isSetup); // Pass strict flag back
+
                 if (isSetup) {
                     String qrCodeUrl = totpService.getQrCodeUrl(secretToVerify, "KolloseumAdmin");
                     model.addAttribute("qrCodeUrl", qrCodeUrl);
@@ -148,16 +168,14 @@ public class AdminWebController {
                 }
                 return "admin/totp";
             }
+        } catch (Exception e) {
+            return "redirect:/admin/login?error=verify_failed";
         }
-
-        return "redirect:/admin/login?error";
     }
 
     @GetMapping("/terms")
     public String termsPage(Model model, HttpSession session) {
-        if (session.getAttribute("TOTP_VERIFIED") == null) {
-            return "redirect:/admin/totp";
-        }
+        // Interceptor checks security now.
         model.addAttribute("termsList", adminTermsService.getAllTerms());
         return "admin/terms";
     }
@@ -168,10 +186,7 @@ public class AdminWebController {
             @RequestParam String content,
             HttpSession session) {
 
-        if (session.getAttribute("TOTP_VERIFIED") == null) {
-            return "redirect:/admin/totp";
-        }
-
+        // Interceptor checks security now.
         adminTermsService.createTerms(type, version, content);
         return "redirect:/admin/terms";
     }

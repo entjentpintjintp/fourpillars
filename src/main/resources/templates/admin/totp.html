@@ -90,12 +90,29 @@
 <body>
     <div class="login-container">
 
-        <!-- Setup Mode -->
-        <div th:if="${isSetup}">
-            <h1>Setup 2FA</h1>
+        <!-- ERROR: Setup Required but No Data (Strict Mode) -->
+        <div th:if="${setupRequired and (qrCodeUrl == null or qrCodeUrl.isEmpty())}" style="text-align: center;">
+            <h1 style="color: #dc3545;">SETUP FAILED</h1>
+            <p style="color: #666; font-weight: bold;">CRITICAL ERROR</p>
+            <p class="error-message">
+                System requires initial 2FA setup,<br>
+                but failed to generate QR Code.
+            </p>
+            <a href="/admin/login?logout" style="color: #dc3545; text-decoration: underline;">Logout & Retry</a>
+        </div>
+
+        <!-- Setup Mode (Normal) -->
+        <div th:if="${setupRequired and qrCodeUrl != null}">
+            <h1 style="color: #4a90e2;">SETUP MODE (QR)</h1>
             <p style="margin-bottom: 1rem; color: #666;">Scan this QR code with your authenticator app.</p>
 
             <div id="qrcode" style="margin: 0 auto 1.5rem auto; width: 128px;"></div>
+
+            <!-- Default link for manual entry fallback or specific apps -->
+            <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 0.5rem;">
+                <a th:href="${qrCodeUrl}" target="_blank" style="color: #aaa; text-decoration: none;">Link:
+                    otpauth://...</a>
+            </p>
 
             <p style="margin-bottom: 1.5rem; color: #888; font-size: 0.9rem;">
                 Or manually enter secret: <br>
@@ -103,18 +120,22 @@
             </p>
         </div>
 
-        <!-- Verify Mode -->
-        <div th:unless="${isSetup}">
+        <!-- Verify Mode (Only shown if setup NOT required) -->
+        <div th:unless="${setupRequired}">
             <h1>Two-Factor Authentication</h1>
             <p style="margin-bottom: 1.5rem; color: #666;">Please enter the 6-digit code from your authenticator app.
             </p>
         </div>
 
+        <!-- Global Error Message -->
         <div th:if="${error}" class="error-message">
             <span th:text="${error}">Invalid code</span>
         </div>
 
-        <form th:action="@{/admin/totp/verify}" method="post">
+        <!-- Form (Verification) -->
+        <!-- Only show form if NOT in strict error state -->
+        <form th:if="${!setupRequired or (setupRequired and qrCodeUrl != null)}" th:action="@{/admin/totp/verify}"
+            method="post">
             <div class="form-group">
                 <input type="text" name="code" placeholder="000000" maxlength="6" pattern="\d{6}" required autofocus
                     autocomplete="off">
@@ -125,13 +146,24 @@
 
     <!-- QRCode Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script th:if="${isSetup}" th:inline="javascript">
-        var qrCodeUrl = /*[[${qrCodeUrl}]]*/ "";
-        new QRCode(document.getElementById("qrcode"), {
-            text: qrCodeUrl,
-            width: 128,
-            height: 128
-        });
+    <script th:if="${setupRequired and qrCodeUrl != null}" th:inline="javascript">
+        try {
+            var qrCodeUrl = /*[[${qrCodeUrl}]]*/ "";
+            if (qrCodeUrl) {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: qrCodeUrl,
+                    width: 128,
+                    height: 128,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } else {
+                console.error("QR Code URL is empty!");
+                alert("Critical: QR Code URL is missing.");
+            }
+        } catch (e) {
+            console.error("QRCode generation failed:", e);
+            alert("Error generating QR Code: " + e.message);
+        }
     </script>
 </body>
 
