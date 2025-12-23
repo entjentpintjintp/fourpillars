@@ -50,5 +50,6 @@ if [ ! -f "$JAR_PATH" ]; then
 fi
 
 # 5. Run Application
-echo "🚀 Starting FourPillars Application..."
-java -Duser.timezone=Asia/Seoul -jar "$JAR_PATH"
+nohup java -Duser.timezone=Asia/Seoul -jar "$JAR_PATH" > server.log 2>&1 &
+echo "✅ Application started in background. Logs are being written to server.log"
+echo "👉 Run 'tail -f server.log' to monitor."
