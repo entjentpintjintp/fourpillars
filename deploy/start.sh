@@ -62,6 +62,6 @@ fi
 echo "🚀 Starting application: $(basename "$JAR_PATH")"
 
 # 5. Run Application
-nohup java -Dspring.profiles.active=prod -Duser.timezone=Asia/Seoul -jar "$JAR_PATH" > server.log 2>&1 &
+nohup java -Xms1536m -Xmx1536m -Dspring.profiles.active=prod -Duser.timezone=Asia/Seoul -jar "$JAR_PATH" > server.log 2>&1 &
 echo "✅ Application started in background. Logs are being written to server.log"
 echo "👉 Run 'tail -f server.log' to monitor."

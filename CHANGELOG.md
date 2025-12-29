@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added `-Dspring.profiles.active=prod` to enforce production profile.
 - **Database:**
     - Fixed schema validation issues by enforcing `validate` (via prod profile).
+### Optimized
+- **Performance Tuning (4GB Server):**
+    - Increased Database Connection Pool (`HikariCP`) to 30 (from default 10).
+    - Increased Web Server Threads (`Tomcat`) to 300 (from default 200).
+    - Fixed JVM Heap Memory to 1.5GB (`-Xms1536m -Xmx1536m`) for stability.
 
 ## [1.0.0] - 2025-12-26
 ### Added

@@ -4,6 +4,10 @@ spring:
     username: "${DB_USERNAME}"
     password: "${DB_PASSWORD}"
     driver-class-name: "org.mariadb.jdbc.Driver"
+    hikari:
+      maximum-pool-size: 30 # Optimized for 2vCPU (4GB RAM)
+      minimum-idle: 10
+      pool-name: "FourPillars-DB-Pool"
   jpa:
     hibernate:
       #개발 환경에서 스키마 자동 업데이트. 프로덕션인 경우 validate 권장 create-drop
@@ -74,3 +78,8 @@ management:
 
 server:
   forward-headers-strategy: native
+  tomcat:
+    threads:
+      max: 300 # Concurrent Request Limit (default 200)
+      min-spare: 20
+    accept-count: 100 # Queue size when threads are full
