@@ -2,7 +2,6 @@ package com.kolloseum.fourpillars.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,10 +21,13 @@ public class NoticeEntity extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Builder
     public NoticeEntity(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public static NoticeEntity create(String title, String content) {
+        return new NoticeEntity(title, content);
     }
 
     public void update(String title, String content) {

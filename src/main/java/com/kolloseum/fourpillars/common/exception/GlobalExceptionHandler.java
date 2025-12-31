@@ -59,6 +59,13 @@ public class GlobalExceptionHandler {
         return handleErrorException(ErrorCode.D001, "Database operation failed");
     }
 
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<?>> handleTypeMismatchException(
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex) {
+        // e.g. "notices/title" -> id needs Long -> S002 (Illegal Argument)
+        return handleErrorException(ErrorCode.S002, "Invalid parameter: " + ex.getName());
+    }
+
     // 기본 예외 처리 - 요청 파라미터 검증 실패
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {

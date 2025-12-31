@@ -2,14 +2,15 @@ package com.kolloseum.fourpillars.application.dto;
 
 import com.kolloseum.fourpillars.domain.model.entity.Terms;
 import com.kolloseum.fourpillars.domain.model.enums.TermsType;
-import lombok.Builder;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TermsResult {
     private final UUID id;
     private final TermsType termsType;
@@ -19,13 +20,12 @@ public class TermsResult {
     private final LocalDateTime createdAt;
 
     public static TermsResult from(Terms terms) {
-        return TermsResult.builder()
-                .id(terms.getId())
-                .termsType(terms.getTermsType())
-                .termsVersion(terms.getTermsVersion())
-                .termsContent(terms.getTermsContent())
-                .fileHash(terms.getFileHash())
-                .createdAt(terms.getCreatedAt())
-                .build();
+        return new TermsResult(
+                terms.getId(),
+                terms.getTermsType(),
+                terms.getTermsVersion(),
+                terms.getTermsContent(),
+                terms.getFileHash(),
+                terms.getCreatedAt());
     }
 }
