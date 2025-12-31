@@ -41,4 +41,13 @@ public class ResponseMapper {
                 query.getMisc());
     }
 
+    // NoticeResult → NoticeDetailResponse
+    public static NoticeDetailResponse toNoticeDetailResponse(NoticeResult result) {
+        return NoticeDetailResponse.from(result);
+    }
+
+    // NoticeResult -> NoticeListResponse
+    public static NoticeListResponse toNoticeListResponse(NoticeResult result) {
+        return NoticeListResponse.from(result);
+    }
 }

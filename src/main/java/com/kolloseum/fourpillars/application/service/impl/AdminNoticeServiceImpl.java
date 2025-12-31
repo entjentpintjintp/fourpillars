@@ -1,11 +1,11 @@
 package com.kolloseum.fourpillars.application.service.impl;
 
+import com.kolloseum.fourpillars.application.dto.NoticeResult;
 import com.kolloseum.fourpillars.application.service.AdminNoticeService;
 import com.kolloseum.fourpillars.common.exception.BusinessException;
 import com.kolloseum.fourpillars.domain.repository.NoticeRepository;
 import com.kolloseum.fourpillars.infrastructure.persistence.entity.NoticeEntity;
 import com.kolloseum.fourpillars.interfaces.dto.request.NoticeRequest;
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,26 +18,26 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
     @Override
     @Transactional
-    public NoticeDetailResponse createNotice(NoticeRequest request) {
+    public NoticeResult createNotice(NoticeRequest request) {
         NoticeEntity notice = NoticeEntity.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
                 .build();
 
         NoticeEntity savedNotice = noticeRepository.save(notice);
-        return NoticeDetailResponse.from(savedNotice);
+        return NoticeResult.from(savedNotice);
     }
 
     @Override
     @Transactional
-    public NoticeDetailResponse updateNotice(Long id, NoticeRequest request) {
+    public NoticeResult updateNotice(Long id, NoticeRequest request) {
         NoticeEntity notice = noticeRepository.findById(id)
                 .orElseThrow(() -> BusinessException.notFound("Notice not found with id: " + id));
 
         notice.update(request.getTitle(), request.getContent());
         // JPA Dirty Checking will save the changes
 
-        return NoticeDetailResponse.from(notice);
+        return NoticeResult.from(notice);
     }
 
     @Override

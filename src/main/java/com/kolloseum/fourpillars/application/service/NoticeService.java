@@ -1,11 +1,11 @@
 package com.kolloseum.fourpillars.application.service;
 
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeDetailResponse;
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeWrapper;
+import com.kolloseum.fourpillars.application.dto.NoticeResult;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface NoticeService {
-    NoticeWrapper getNoticeList(Pageable pageable);
+    Page<NoticeResult> getNoticeList(Pageable pageable);
 
-    NoticeDetailResponse getNoticeDetail(Long id);
+    NoticeResult getNoticeDetail(Long id);
 }

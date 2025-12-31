@@ -14,7 +14,7 @@ public class TermsMapper {
                 termsEntity.getTermsType(),
                 termsEntity.getTermsVersion(),
                 termsEntity.getTermsContent(),
-                termsEntity.getFileHash(),
+                termsEntity.ggtFileHash(),
                 termsEntity.getCreatedAt());
     }
 

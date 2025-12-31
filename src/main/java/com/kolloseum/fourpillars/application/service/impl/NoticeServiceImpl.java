@@ -1,12 +1,10 @@
 package com.kolloseum.fourpillars.application.service.impl;
 
+import com.kolloseum.fourpillars.application.dto.NoticeResult;
 import com.kolloseum.fourpillars.application.service.NoticeService;
 import com.kolloseum.fourpillars.common.exception.BusinessException;
 import com.kolloseum.fourpillars.domain.repository.NoticeRepository;
 import com.kolloseum.fourpillars.infrastructure.persistence.entity.NoticeEntity;
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeDetailResponse;
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeListResponse;
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,21 +22,17 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     @Transactional(readOnly = true)
-    public NoticeWrapper getNoticeList(Pageable pageable) {
-        Page<NoticeEntity> page = noticeRepository.findAll(pageable);
-        List<NoticeListResponse> notices = page.getContent().stream()
-                .map(NoticeListResponse::from)
-                .collect(Collectors.toList());
-
-        return NoticeWrapper.of(notices);
+    public Page<NoticeResult> getNoticeList(Pageable pageable) {
+        return noticeRepository.findAll(pageable)
+                .map(NoticeResult::from);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public NoticeDetailResponse getNoticeDetail(Long id) {
+    public NoticeResult getNoticeDetail(Long id) {
         NoticeEntity notice = noticeRepository.findById(id)
                 .orElseThrow(() -> BusinessException.notFound("Notice not found with id: " + id));
 
-        return NoticeDetailResponse.from(notice);
+        return NoticeResult.from(notice);
     }
 }

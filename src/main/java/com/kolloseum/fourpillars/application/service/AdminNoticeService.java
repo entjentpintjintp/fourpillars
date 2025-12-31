@@ -1,12 +1,12 @@
 package com.kolloseum.fourpillars.application.service;
 
+import com.kolloseum.fourpillars.application.dto.NoticeResult;
 import com.kolloseum.fourpillars.interfaces.dto.request.NoticeRequest;
-import com.kolloseum.fourpillars.interfaces.dto.response.NoticeDetailResponse;
 
 public interface AdminNoticeService {
-    NoticeDetailResponse createNotice(NoticeRequest request);
+    NoticeResult createNotice(NoticeRequest request);
 
-    NoticeDetailResponse updateNotice(Long id, NoticeRequest request);
+    NoticeResult updateNotice(Long id, NoticeRequest request);
 
     void deleteNotice(Long id);
 }

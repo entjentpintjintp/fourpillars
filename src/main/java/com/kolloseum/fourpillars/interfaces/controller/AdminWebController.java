@@ -1,13 +1,14 @@
 package com.kolloseum.fourpillars.interfaces.controller;
 
+import com.kolloseum.fourpillars.application.service.AdminNoticeService;
 import com.kolloseum.fourpillars.application.service.AdminTermsService;
 import com.kolloseum.fourpillars.application.service.NoticeService;
 import com.kolloseum.fourpillars.application.service.TotpService;
 import com.kolloseum.fourpillars.domain.model.entity.User;
 import com.kolloseum.fourpillars.domain.model.enums.Provider;
-import com.kolloseum.fourpillars.domain.model.enums.TermsType;
 import com.kolloseum.fourpillars.domain.model.vo.OAuth;
 import com.kolloseum.fourpillars.domain.repository.UserRepository;
+import com.kolloseum.fourpillars.interfaces.dto.request.TermsRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ public class AdminWebController {
 
     private final AdminTermsService adminTermsService;
     private final NoticeService noticeService;
+    private final AdminNoticeService adminNoticeService;
     private final TotpService totpService;
     private final UserRepository userRepository;
 
@@ -191,26 +193,37 @@ public class AdminWebController {
     @GetMapping("/terms")
     public String termsPage(Model model, HttpSession session) {
         // Interceptor checks security now.
+        // adminTermsService.getAllTerms() now returns List<TermsResult>
         model.addAttribute("termsList", adminTermsService.getAllTerms());
         return "admin/terms";
     }
 
     @PostMapping("/terms")
-    public String createTerms(@RequestParam TermsType type,
-            @RequestParam String version,
-            @RequestParam String content,
-            HttpSession session) {
-
+    public String createTerms(
+            @org.springframework.web.bind.annotation.ModelAttribute TermsRequest request) {
         // Interceptor checks security now.
-        adminTermsService.createTerms(type, version, content);
+        adminTermsService.createTerms(request);
         return "redirect:/admin/terms";
     }
 
     @GetMapping("/notices")
     public String noticePage(@PageableDefault(size = 20) Pageable pageable, Model model) {
         // Interceptor verifies admin role
-        var wrapper = noticeService.getNoticeList(pageable);
-        model.addAttribute("notices", wrapper.getNotices());
+        var resultPage = noticeService.getNoticeList(pageable);
+        model.addAttribute("notices", resultPage);
         return "admin/notices";
+    }
+
+    @PostMapping("/notices")
+    public String createNotice(
+            @org.springframework.web.bind.annotation.ModelAttribute com.kolloseum.fourpillars.interfaces.dto.request.NoticeRequest request) {
+        adminNoticeService.createNotice(request);
+        return "redirect:/admin/notices";
+    }
+
+    @PostMapping("/notices/delete/{id}")
+    public String deleteNotice(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        adminNoticeService.deleteNotice(id);
+        return "redirect:/admin/notices";
     }
 }

@@ -1,5 +1,6 @@
 package com.kolloseum.fourpillars.interfaces.dto.response;
 
+import com.kolloseum.fourpillars.application.dto.NoticeResult;
 import com.kolloseum.fourpillars.infrastructure.persistence.entity.NoticeEntity;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,16 @@ public class NoticeDetailResponse {
                 .content(entity.getContent())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    public static NoticeDetailResponse from(NoticeResult result) {
+        return NoticeDetailResponse.builder()
+                .id(result.getId())
+                .title(result.getTitle())
+                .content(result.getContent())
+                .createdAt(result.getCreatedAt())
+                .updatedAt(result.getUpdatedAt())
                 .build();
     }
 }
