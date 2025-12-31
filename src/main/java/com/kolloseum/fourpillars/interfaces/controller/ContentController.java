@@ -43,7 +43,7 @@ public class ContentController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @GetMapping("/notices")
+    @GetMapping("/notices/title")
     public ResponseEntity<ApiResponse<NoticeWrapper>> getNoticeList(Pageable pageable) {
         var resultPage = noticeService.getNoticeList(pageable);
         var responseList = resultPage.getContent().stream()
@@ -52,7 +52,7 @@ public class ContentController {
         return ResponseEntity.ok(ApiResponse.success(NoticeWrapper.of(responseList)));
     }
 
-    @GetMapping("/notices/{id}")
+    @GetMapping("/notices/content/{id}")
     public ResponseEntity<ApiResponse<NoticeDetailResponse>> getNoticeDetail(@PathVariable Long id) {
         var result = noticeService.getNoticeDetail(id);
         var response = ResponseMapper.toNoticeDetailResponse(result);
