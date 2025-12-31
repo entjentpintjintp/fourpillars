@@ -79,4 +79,8 @@ public class BusinessException extends RuntimeException {
     public static BusinessException invalidRequest(String message) {
         return new BusinessException(ErrorCode.S002, message);
     }
+
+    public static BusinessException notFound(String message) {
+        return new BusinessException(ErrorCode.S003, message);
+    }
 }

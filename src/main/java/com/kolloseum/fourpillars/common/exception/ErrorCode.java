@@ -42,6 +42,7 @@ public enum ErrorCode {
     // S001~S999: System/공통 오류
     S001("S001", "Validation failed"),
     S002("S002", "Bad request"),
+    S003("S003", "Resource not found"),
     S999("S999", "Internal server error");
 
     private final String code;
