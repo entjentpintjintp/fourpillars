@@ -1,6 +1,7 @@
 package com.kolloseum.fourpillars.interfaces.controller;
 
 import com.kolloseum.fourpillars.application.service.AdminTermsService;
+import com.kolloseum.fourpillars.application.service.NoticeService;
 import com.kolloseum.fourpillars.application.service.TotpService;
 import com.kolloseum.fourpillars.domain.model.entity.User;
 import com.kolloseum.fourpillars.domain.model.enums.Provider;
@@ -9,6 +10,8 @@ import com.kolloseum.fourpillars.domain.model.vo.OAuth;
 import com.kolloseum.fourpillars.domain.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminWebController {
 
     private final AdminTermsService adminTermsService;
+    private final NoticeService noticeService;
     private final TotpService totpService;
     private final UserRepository userRepository;
 
@@ -200,5 +204,13 @@ public class AdminWebController {
         // Interceptor checks security now.
         adminTermsService.createTerms(type, version, content);
         return "redirect:/admin/terms";
+    }
+
+    @GetMapping("/notices")
+    public String noticePage(@PageableDefault(size = 20) Pageable pageable, Model model) {
+        // Interceptor verifies admin role
+        var wrapper = noticeService.getNoticeList(pageable);
+        model.addAttribute("notices", wrapper.getNotices());
+        return "admin/notices";
     }
 }

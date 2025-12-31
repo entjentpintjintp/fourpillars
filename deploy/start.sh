@@ -31,7 +31,7 @@ fi
 # 3. Build Project (if source code exists)
 PROJECT_ROOT=".."
 # Dynamic JAR detection
-JAR_PATH=$(find "$PROJECT_ROOT/build/libs" -name "FourPillars-*.jar" 2>/dev/null | head -n 1)
+JAR_PATH=$(find "$PROJECT_ROOT/build/libs" -name "FourPillars-*.jar" ! -name "*-plain.jar" 2>/dev/null | head -n 1)
 
 if [ -f "$PROJECT_ROOT/gradlew" ]; then
     echo "🔨 Building project with Gradle..."
@@ -45,11 +45,12 @@ if [ -f "$PROJECT_ROOT/gradlew" ]; then
     echo "✅ Build successful."
     
     # Re-find JAR after build as version might have changed
-    JAR_PATH=$(find "$PROJECT_ROOT/build/libs" -name "FourPillars-*.jar" 2>/dev/null | head -n 1)
+    # EXCLUDE plain jar to prevent "no main manifest attribute" error
+    JAR_PATH=$(find "$PROJECT_ROOT/build/libs" -name "FourPillars-*.jar" ! -name "*-plain.jar" 2>/dev/null | head -n 1)
 else
     echo "⚠️ Gradle wrapper not found. Assuming JAR exists."
     if [ -z "$JAR_PATH" ] && [ -f "FourPillars-*.jar" ]; then
-        JAR_PATH=$(ls FourPillars-*.jar | head -n 1)
+        JAR_PATH=$(ls FourPillars-*.jar | grep -v "plain" | head -n 1)
     fi
 fi
 
