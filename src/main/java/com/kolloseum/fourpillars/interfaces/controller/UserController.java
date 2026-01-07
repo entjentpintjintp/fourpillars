@@ -36,9 +36,16 @@ public class UserController {
         var tokenPayload = SecurityContextTokenExtractor.getCurrentTokenPayload();
         var query = userService.getUserInfo(tokenPayload);
         var response = ResponseMapper.toUserProfileResponse(query);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/fortune")
+    public ResponseEntity<ApiResponse<com.kolloseum.fourpillars.interfaces.dto.response.FourPillarsResponse>> getUserFortune() {
+        var tokenPayload = SecurityContextTokenExtractor.getCurrentTokenPayload();
+        var result = userService.getUserFortune(tokenPayload);
+        var response = ResponseMapper.toFourPillarsResponse(result);
 
         return ResponseEntity.ok(ApiResponse.success(response));
-
     }
 
     @DeleteMapping("/withdraw")

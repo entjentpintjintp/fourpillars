@@ -24,7 +24,8 @@ public class ResponseMapper {
 
     // UserQuery → UserProfileResponse
     public static UserProfileResponse toUserProfileResponse(UserQuery query) {
-        return UserProfileResponse.of(query.getBirthdate().toString());
+        String birthTimeCode = query.getBirthTime() != null ? query.getBirthTime().getCode() : null;
+        return UserProfileResponse.of(query.getBirthdate().toString(), birthTimeCode);
     }
 
     // FortuneQuery → FortuneResponse
@@ -39,6 +40,11 @@ public class ResponseMapper {
                 query.getAffection(),
                 query.getWealth(),
                 query.getMisc());
+    }
+
+    // FourPillarsResult → FourPillarsResponse
+    public static FourPillarsResponse toFourPillarsResponse(FourPillarsResult result) {
+        return FourPillarsResponse.of(result.getYearly(), result.getMonthly(), result.getDaily(), result.getTimely());
     }
 
     // NoticeResult → NoticeDetailResponse

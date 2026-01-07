@@ -23,6 +23,10 @@ public class ProfileEntity extends BaseTimeEntity {
 
     private LocalDate birthdate;
 
+    @Column(name = "birthtime")
+    @Enumerated(EnumType.STRING)
+    private com.kolloseum.fourpillars.domain.model.enums.TimeBranch birthtime;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;

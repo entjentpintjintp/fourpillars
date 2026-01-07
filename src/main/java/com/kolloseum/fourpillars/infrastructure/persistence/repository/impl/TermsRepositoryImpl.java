@@ -26,13 +26,19 @@ public class TermsRepositoryImpl implements TermsRepository {
     @Override
     public Terms save(Terms terms) {
         return TermsMapper.toDomain(
-            termsJpaRepository.save(TermsMapper.toEntity(terms))
-        );
+                termsJpaRepository.save(TermsMapper.toEntity(terms)));
     }
-    
+
     @Override
     public Optional<Terms> findByTermsTypeAndVersion(TermsType termsType, String version) {
         return termsJpaRepository.findByTermsTypeAndTermsVersion(termsType, version)
                 .map(TermsMapper::toDomain);
+    }
+
+    @Override
+    public java.util.List<Terms> findAllByOrderByCreatedAtDesc() {
+        return termsJpaRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(TermsMapper::toDomain)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

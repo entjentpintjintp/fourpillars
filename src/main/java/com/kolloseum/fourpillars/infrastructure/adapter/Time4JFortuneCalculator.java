@@ -1,5 +1,6 @@
 package com.kolloseum.fourpillars.infrastructure.adapter;
 
+import com.kolloseum.fourpillars.domain.model.enums.TimeBranch;
 import com.kolloseum.fourpillars.domain.model.vo.Gapja;
 import com.kolloseum.fourpillars.domain.service.FortuneCalculatorService;
 import net.time4j.PlainDate;
@@ -88,4 +89,14 @@ public class Time4JFortuneCalculator implements FortuneCalculatorService {
         return lunarDate.lengthOfMonth() == 30;
     }
 
+    @Override
+    public Gapja calculateSiju(Gapja dayGapja, TimeBranch timeBranch) {
+        int dayStemIndex = dayGapja.getCheonganIndex();
+        int timeStemStartIndex = (dayStemIndex % 5) * 2;
+        int timeBranchIndex = timeBranch.getIndex();
+
+        int sijuStemIndex = (timeStemStartIndex + timeBranchIndex) % 10;
+
+        return Gapja.of(sijuStemIndex, timeBranchIndex);
+    }
 }

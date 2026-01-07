@@ -12,6 +12,7 @@ public class ProfileMapper {
         return Profile.restore(
                 profileEntity.getId(),
                 profileEntity.getBirthdate(),
+                profileEntity.getBirthtime(),
                 profileEntity.getUpdatedAt());
     }
 
@@ -22,6 +23,7 @@ public class ProfileMapper {
         ProfileEntity entity = new ProfileEntity();
         entity.setId(profile.getId());
         entity.setBirthdate(profile.getBirthdate());
+        entity.setBirthtime(profile.getBirthTime());
 
         return entity;
     }
@@ -31,6 +33,6 @@ public class ProfileMapper {
             return;
         }
         entity.setBirthdate(profile.getBirthdate());
-
+        entity.setBirthtime(profile.getBirthTime());
     }
 }

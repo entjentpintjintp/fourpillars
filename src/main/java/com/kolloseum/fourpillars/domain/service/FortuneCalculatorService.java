@@ -1,5 +1,6 @@
 package com.kolloseum.fourpillars.domain.service;
 
+import com.kolloseum.fourpillars.domain.model.enums.TimeBranch;
 import com.kolloseum.fourpillars.domain.model.vo.Gapja;
 import java.time.LocalDate;
 
@@ -16,4 +17,6 @@ public interface FortuneCalculatorService {
     int transformSolarBirthdayToLunar(LocalDate birthdate);
 
     boolean lengthOfMonth(LocalDate birthdate);
+
+    Gapja calculateSiju(Gapja dayGapja, TimeBranch timeBranch);
 }

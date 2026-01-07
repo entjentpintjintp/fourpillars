@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-07
+### Added
+- **Siju (Time Pillar) Implementation:**
+    - **Siju Calculation:** Implemented "Sidu-beop" (Time Head Rule) to calculate the Siju (Time Pillar) based on Day Pillar (Gapja) and birth time.
+    - **TimeBranch Support:** Added `TimeBranch` Enum (12 Earthly Branches) to handle birth time inputs (e.g., 'ja', 'chuk').
+    - **User Profile:** Added `birthTime` field to User Profile.
+    - **API Endpoint:** Added `GET /users/fortune` to retrieve User's Four Pillars (Year, Month, Day, Time) in Korean (e.g., "갑자", "병인").
+
 ## [1.1.0] - 2025-12-31
 ### Added
 - **Notice System (공지사항):**

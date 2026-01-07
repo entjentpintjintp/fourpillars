@@ -56,10 +56,11 @@ public class User {
         }
 
         // 집계루트 메서드
-        public User createOrUpdateProfile(LocalDate lunarBirthdate) {
+        public User createOrUpdateProfile(LocalDate lunarBirthdate,
+                        com.kolloseum.fourpillars.domain.model.enums.TimeBranch birthTime) {
                 Profile newProfile = this.profile == null
-                                ? Profile.create(lunarBirthdate)
-                                : this.profile.update(lunarBirthdate);
+                                ? Profile.create(lunarBirthdate, birthTime)
+                                : this.profile.update(lunarBirthdate, birthTime);
 
                 return new User(this.id, this.oAuth, this.role, this.lastLogin, this.createdAt,
                                 this.totpSecret, newProfile, this.device, this.termsAgreements);

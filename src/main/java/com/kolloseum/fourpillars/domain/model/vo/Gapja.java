@@ -79,11 +79,11 @@ public class Gapja {
     public static final Gapja IMSUL_59 = new Gapja("임술", 59, 19, 11, 17);
     public static final Gapja GYEHAE_60 = new Gapja("계해", 60, 16, 9, 14);
 
-    private final String name;        // 갑자명
-    private final int order;          // 1~60 순서
-    private final int yearScore;      // 년주 점수
-    private final int monthScore;     // 월주 점수
-    private final int dayScore;       // 일주 점수
+    private final String name; // 갑자명
+    private final int order; // 1~60 순서
+    private final int yearScore; // 년주 점수
+    private final int monthScore; // 월주 점수
+    private final int dayScore; // 일주 점수
 
     // HashMap으로 빠른 검색 지원
     private static final Map<String, Gapja> NAME_TO_GAPJA;
@@ -101,19 +101,19 @@ public class Gapja {
 
     // 모든 갑자 배열
     private static Gapja[] values() {
-        return new Gapja[]{
-            GAPJA_01, EULCHUK_02, BYEONGIN_03, JEONGMYO_04, MUJIN_05,
-            GISA_06, GYEONGO_07, SINMI_08, IMSIN_09, GYEYU_10,
-            GAPSUL_11, EULHAE_12, BYEONGJA_13, JEONGCHUK_14, MUIN_15,
-            GIMYO_16, GYEONGJIN_17, SINSA_18, IMO_19, GYEMI_20,
-            GAPSIN_21, EULYU_22, BYEONGSUL_23, JEONGHAE_24, MUJA_25,
-            GICHUK_26, GYEONGIN_27, SINMYO_28, IMJIN_29, GYESA_30,
-            GAPO_31, EULMI_32, BYEONGSIN_33, JEONGYU_34, MUSUL_35,
-            GIHAE_36, GYEONGJA_37, SINCHUK_38, IMIN_39, GYEMYO_40,
-            GAPJIN_41, EULSA_42, BYEONGO_43, JEONGMI_44, MUSIN_45,
-            GIYU_46, GYEONGSUL_47, SINHAE_48, IMJA_49, GYECHUK_50,
-            GAPIN_51, EULMYO_52, BYEONGJIN_53, JEONGSA_54, MUGO_55,
-            GIMI_56, GYEONGSIN_57, SINYU_58, IMSUL_59, GYEHAE_60
+        return new Gapja[] {
+                GAPJA_01, EULCHUK_02, BYEONGIN_03, JEONGMYO_04, MUJIN_05,
+                GISA_06, GYEONGO_07, SINMI_08, IMSIN_09, GYEYU_10,
+                GAPSUL_11, EULHAE_12, BYEONGJA_13, JEONGCHUK_14, MUIN_15,
+                GIMYO_16, GYEONGJIN_17, SINSA_18, IMO_19, GYEMI_20,
+                GAPSIN_21, EULYU_22, BYEONGSUL_23, JEONGHAE_24, MUJA_25,
+                GICHUK_26, GYEONGIN_27, SINMYO_28, IMJIN_29, GYESA_30,
+                GAPO_31, EULMI_32, BYEONGSIN_33, JEONGYU_34, MUSUL_35,
+                GIHAE_36, GYEONGJA_37, SINCHUK_38, IMIN_39, GYEMYO_40,
+                GAPJIN_41, EULSA_42, BYEONGO_43, JEONGMI_44, MUSIN_45,
+                GIYU_46, GYEONGSUL_47, SINHAE_48, IMJA_49, GYECHUK_50,
+                GAPIN_51, EULMYO_52, BYEONGJIN_53, JEONGSA_54, MUGO_55,
+                GIMI_56, GYEONGSIN_57, SINYU_58, IMSUL_59, GYEHAE_60
         };
     }
 
@@ -131,6 +131,27 @@ public class Gapja {
             throw new IllegalArgumentException("Gapja order must be between 1 and 60");
         }
         return ORDER_TO_GAPJA.get(order);
+    }
+
+    public int getCheonganIndex() {
+        return (this.order - 1) % 10;
+    }
+
+    public int getJijiIndex() {
+        return (this.order - 1) % 12;
+    }
+
+    public static Gapja of(int stemIndex, int branchIndex) {
+        if (stemIndex < 0 || stemIndex >= 10 || branchIndex < 0 || branchIndex >= 12) {
+            throw new IllegalArgumentException("Invalid indices");
+        }
+
+        for (Gapja gapja : values()) {
+            if (gapja.getCheonganIndex() == stemIndex && gapja.getJijiIndex() == branchIndex) {
+                return gapja;
+            }
+        }
+        throw new IllegalArgumentException("Invalid gapja combination");
     }
 
 }

@@ -20,18 +20,7 @@ public class NoticeRepositoryImpl implements NoticeRepository {
 
     @Override
     public Notice save(Notice notice) {
-        // Domain -> Entity
-        NoticeEntity entity;
-        if (notice.getId() != null) {
-            // Update scenario: Fetch existing, update fields
-            entity = noticeJpaRepository.findById(notice.getId())
-                    .orElse(NoticeMapper.toEntity(notice)); // Fallback if not found, though unconventional
-            entity.update(notice.getTitle(), notice.getContent());
-        } else {
-            // Create scenario
-            entity = NoticeMapper.toEntity(notice);
-        }
-
+        NoticeEntity entity = NoticeMapper.toEntity(notice);
         NoticeEntity savedEntity = noticeJpaRepository.save(entity);
         return NoticeMapper.toDomain(savedEntity);
     }

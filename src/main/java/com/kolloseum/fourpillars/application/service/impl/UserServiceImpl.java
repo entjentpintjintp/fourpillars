@@ -2,11 +2,14 @@ package com.kolloseum.fourpillars.application.service.impl;
 
 import com.kolloseum.fourpillars.application.dto.UserCommand;
 import com.kolloseum.fourpillars.application.dto.UserQuery;
+import com.kolloseum.fourpillars.application.dto.FourPillarsResult;
+import com.kolloseum.fourpillars.domain.model.enums.TimeBranch;
 import com.kolloseum.fourpillars.application.service.UserService;
 import com.kolloseum.fourpillars.common.exception.BusinessException;
 import com.kolloseum.fourpillars.common.exception.JwtException;
 import com.kolloseum.fourpillars.common.utils.AuthValidator;
 import com.kolloseum.fourpillars.domain.model.entity.User;
+import com.kolloseum.fourpillars.domain.model.vo.Gapja;
 import com.kolloseum.fourpillars.domain.model.vo.TokenPayload;
 import com.kolloseum.fourpillars.domain.repository.UserRepository;
 import com.kolloseum.fourpillars.domain.service.TokenProvider;
@@ -27,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
     private final AuthValidator authValidator;
+    private final com.kolloseum.fourpillars.domain.service.FortuneCalculatorService fortuneCalculatorService;
 
     @Override
     @Transactional(readOnly = true)
@@ -37,7 +41,7 @@ public class UserServiceImpl implements UserService {
             throw BusinessException.invalidUser("User profile not found");
         }
 
-        return UserQuery.of(user.getProfile().getBirthdate());
+        return UserQuery.of(user.getProfile().getBirthdate(), user.getProfile().getBirthTime());
     }
 
     @Override
@@ -47,11 +51,12 @@ public class UserServiceImpl implements UserService {
             User user = authValidator.validateAndGetAuthorizedUser(tokenPayload);
 
             LocalDate birthdate = userCommand.getBirthdate();
+            TimeBranch birthTime = userCommand.getBirthTime();
             if (birthdate != null && birthdate.isAfter(LocalDate.now())) {
                 throw BusinessException.invalidBirthDate("Birthdate cannot be in the future");
             }
 
-            User updatedUser = user.createOrUpdateProfile(birthdate);
+            User updatedUser = user.createOrUpdateProfile(birthdate, birthTime);
             userRepository.save(updatedUser);
 
             log.info("User profile updated successfully: userId={}, birthdate={}", tokenPayload.getUserId(), birthdate);
@@ -62,6 +67,30 @@ public class UserServiceImpl implements UserService {
             }
             throw BusinessException.profileUpdateFailed("User profile update failed: " + e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FourPillarsResult getUserFortune(TokenPayload tokenPayload) {
+        User user = authValidator.validateAndGetAuthorizedUser(tokenPayload);
+
+        if (user.getProfile() == null || !user.getProfile().isComplete()) {
+            throw BusinessException.invalidUser("User profile incomplete for fortune calculation");
+        }
+
+        LocalDate birthdate = user.getProfile().getBirthdate();
+        TimeBranch birthTime = user.getProfile().getBirthTime();
+
+        Gapja yearGapja = fortuneCalculatorService.calculateYearGapja(birthdate);
+        Gapja monthGapja = fortuneCalculatorService.calculateMonthGapja(birthdate);
+        Gapja dayGapja = fortuneCalculatorService.calculateDayGapja(birthdate);
+        Gapja timeGapja = fortuneCalculatorService.calculateSiju(dayGapja, birthTime);
+
+        return FourPillarsResult.of(
+                yearGapja.getName(),
+                monthGapja.getName(),
+                dayGapja.getName(),
+                timeGapja.getName());
     }
 
     @Override

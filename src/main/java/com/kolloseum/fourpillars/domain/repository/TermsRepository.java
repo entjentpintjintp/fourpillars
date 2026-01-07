@@ -7,6 +7,10 @@ import java.util.Optional;
 
 public interface TermsRepository {
     Optional<Terms> findLatestByType(TermsType termsType);
+
     Terms save(Terms terms);
-    Optional<Terms> findByTermsTypeAndVersion(TermsType termsType, String version); // ← 추가 필요
+
+    Optional<Terms> findByTermsTypeAndVersion(TermsType termsType, String version);
+
+    java.util.List<Terms> findAllByOrderByCreatedAtDesc();
 }

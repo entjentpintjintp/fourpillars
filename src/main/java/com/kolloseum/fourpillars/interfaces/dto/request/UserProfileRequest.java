@@ -13,7 +13,10 @@ public class UserProfileRequest {
     @Pattern(regexp = "^(19[0-9]{2}|[2-9][0-9]{3})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$", message = "Lunar birthdate must be in YYYYMMDD format and after 1900-01-01")
     private final String birthdate;
 
-    public static UserProfileRequest of(String birthdate) {
-        return new UserProfileRequest(birthdate);
+    @Pattern(regexp = "^(ja|chuk|in|myo|jin|sa|o|mi|sin|yu|sul|hae)$", message = "Invalid birth time code")
+    private final String birthTime;
+
+    public static UserProfileRequest of(String birthdate, String birthTime) {
+        return new UserProfileRequest(birthdate, birthTime);
     }
 }
