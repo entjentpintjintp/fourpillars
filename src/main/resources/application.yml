@@ -11,14 +11,21 @@ spring:
   jpa:
     hibernate:
       #개발 환경에서 스키마 자동 업데이트. 프로덕션인 경우 validate 권장 create-drop
-      ddl-auto: update
+      #개발 환경에서 스키마 자동 업데이트. 프로덕션인 경우 validate 권장 create-drop
+      ddl-auto: create
     properties:
       hibernate:
-        format_sql: true
-        show_sql: true
-        use_sql_comments: true
+        format_sql: false
+        show_sql: false
+        use_sql_comments: false
 
     database-platform: "org.hibernate.dialect.MariaDBDialect"
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: INFO # Hide SQL statements
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO # Hide binding parameters
   data:
     redis:
       host: localhost
