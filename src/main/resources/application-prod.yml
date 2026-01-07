@@ -23,7 +23,6 @@ jwt:
   refresh-token-validity-in-seconds: 604800
   issuer: "auth-service"
 
-spring:
   security:
     oauth2:
       client:
