@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RateLimitConfig {
 
-    @Value("${spring.data.redis.host}")
+    @Value("${spring.data.redis.host:localhost}")
     private String redisHost;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${spring.data.redis.port:6379}")
     private int redisPort;
 
     @Bean
