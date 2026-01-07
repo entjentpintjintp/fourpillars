@@ -1,5 +1,4 @@
 HELP.md
-.env
 deploy/env.sh
 .gradle
 build/

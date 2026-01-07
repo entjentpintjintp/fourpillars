@@ -1,11 +1,18 @@
 #!/bin/bash
 
+# Determine script directory for robust paths
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # 1. Load Environment Variables
-if [ -f ./env.sh ]; then
-    source ./env.sh
-    echo "✅ Environment variables loaded."
+if [ -f "$SCRIPT_DIR/env.sh" ]; then
+    source "$SCRIPT_DIR/env.sh"
+    echo "✅ Environment variables loaded from $SCRIPT_DIR/env.sh"
+    
+    # Debug: Check if key variables exist (print first few chars only for security)
+    echo "   - GOOGLE_WEB_CLIENT_ID: ${GOOGLE_WEB_CLIENT_ID:0:5}..."
+    echo "   - JWT_SECRET: ${JWT_SECRET:0:5}..."
 else
-    echo "❌ env.sh not found!"
+    echo "❌ env.sh not found in $SCRIPT_DIR!"
     exit 1
 fi
 
