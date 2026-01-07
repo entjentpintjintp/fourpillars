@@ -9,20 +9,11 @@ spring:
       hibernate:
         format_sql: false
         show_sql: false
-
   data:
     redis:
       host: localhost
       port: 6379
       timeout: 60000
-
-jwt:
-  secret: "${JWT_SECRET}"
-  temporary-token-validity-in-seconds: 600
-  access-token-validity-in-seconds: 3600
-  refresh-token-validity-in-seconds: 604800
-  issuer: "auth-service"
-
   security:
     oauth2:
       client:
@@ -36,6 +27,13 @@ jwt:
             redirect-uri: "https://www.kolloseum.com/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-name: Google
+
+jwt:
+  secret: "${JWT_SECRET}"
+  temporary-token-validity-in-seconds: 600
+  access-token-validity-in-seconds: 3600
+  refresh-token-validity-in-seconds: 604800
+  issuer: "auth-service"
 
 oauth:
   google:
