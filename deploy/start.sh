@@ -5,6 +5,11 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # 1. Load Environment Variables
 if [ -f "$SCRIPT_DIR/env.sh" ]; then
+    # Auto-fix Windows line endings if dos2unix exists
+    if command -v dos2unix &> /dev/null; then
+        dos2unix "$SCRIPT_DIR/env.sh" > /dev/null 2>&1
+    fi
+
     source "$SCRIPT_DIR/env.sh"
     echo "✅ Environment variables loaded from $SCRIPT_DIR/env.sh"
     
@@ -70,6 +75,21 @@ fi
 echo "🚀 Starting application: $(basename "$JAR_PATH")"
 
 # 5. Run Application
-nohup java -Xms1536m -Xmx1536m -Dspring.profiles.active=prod -Duser.timezone=Asia/Seoul -jar "$JAR_PATH" > server.log 2>&1 &
+# Pass environment variables explicitly as System Properties to ensure availability
+nohup java -Xms1536m -Xmx1536m \
+    -Dspring.profiles.active=prod \
+    -Duser.timezone=Asia/Seoul \
+    -DGOOGLE_WEB_CLIENT_ID="$GOOGLE_WEB_CLIENT_ID" \
+    -DGOOGLE_WEB_CLIENT_SECRET="$GOOGLE_WEB_CLIENT_SECRET" \
+    -DGOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+    -DGOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+    -DKAKAO_CLIENT_ID="$KAKAO_CLIENT_ID" \
+    -DKAKAO_CLIENT_SECRET="$KAKAO_CLIENT_SECRET" \
+    -DNAVER_CLIENT_ID="$NAVER_CLIENT_ID" \
+    -DNAVER_CLIENT_SECRET="$NAVER_CLIENT_SECRET" \
+    -DJWT_SECRET="$JWT_SECRET" \
+    -DDB_USERNAME="$DB_USERNAME" \
+    -DDB_PASSWORD="$DB_PASSWORD" \
+    -jar "$JAR_PATH" > server.log 2>&1 &
 echo "✅ Application started in background. Logs are being written to server.log"
 echo "👉 Run 'tail -f server.log' to monitor."
