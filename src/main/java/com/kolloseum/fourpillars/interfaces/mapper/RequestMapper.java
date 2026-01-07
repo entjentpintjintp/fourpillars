@@ -23,7 +23,7 @@ public class RequestMapper {
     // UserProfileRequest → UserCommand
     public static UserCommand toUserCommand(UserProfileRequest request) {
         LocalDate birthdate = LocalDate.parse(request.getBirthdate(), DATE_FORMATTER);
-        TimeBranch birthTime = TimeBranch.fromCode(request.getBirthTime());
+        TimeBranch birthTime = TimeBranch.fromCode(request.getBirthtime());
 
         return UserCommand.of(birthdate, birthTime);
     }

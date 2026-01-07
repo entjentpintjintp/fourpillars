@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -14,9 +15,9 @@ public class UserProfileRequest {
     private final String birthdate;
 
     @Pattern(regexp = "^(ja|chuk|in|myo|jin|sa|o|mi|sin|yu|sul|hae)$", message = "Invalid birth time code")
-    private final String birthTime;
+    private final String birthtime;
 
-    public static UserProfileRequest of(String birthdate, String birthTime) {
-        return new UserProfileRequest(birthdate, birthTime);
+    public static UserProfileRequest of(String birthdate, String birthtime) {
+        return new UserProfileRequest(birthdate, birthtime);
     }
 }

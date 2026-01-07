@@ -24,8 +24,8 @@ public class ResponseMapper {
 
     // UserQuery → UserProfileResponse
     public static UserProfileResponse toUserProfileResponse(UserQuery query) {
-        String birthTimeCode = query.getBirthTime() != null ? query.getBirthTime().getCode() : null;
-        return UserProfileResponse.of(query.getBirthdate().toString(), birthTimeCode);
+        String birthtimeCode = query.getBirthTime() != null ? query.getBirthTime().getCode() : null;
+        return UserProfileResponse.of(query.getBirthdate().toString(), birthtimeCode);
     }
 
     // FortuneQuery → FortuneResponse

@@ -9,9 +9,9 @@ import lombok.Getter;
 public class UserProfileResponse {
 
     private final String birthdate;
-    private final String birthTime;
+    private final String birthtime;
 
-    public static UserProfileResponse of(String birthdate, String birthTime) {
-        return new UserProfileResponse(birthdate, birthTime);
+    public static UserProfileResponse of(String birthdate, String birthtime) {
+        return new UserProfileResponse(birthdate, birthtime);
     }
 }
