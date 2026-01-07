@@ -11,8 +11,7 @@ spring:
   jpa:
     hibernate:
       #개발 환경에서 스키마 자동 업데이트. 프로덕션인 경우 validate 권장 create-drop
-      #개발 환경에서 스키마 자동 업데이트. 프로덕션인 경우 validate 권장 create-drop
-      ddl-auto: create
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: false
@@ -24,8 +23,8 @@ spring:
 logging:
   level:
     root: INFO
-    org.hibernate.SQL: INFO # Hide SQL statements
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO # Hide binding parameters
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
   data:
     redis:
       host: localhost
