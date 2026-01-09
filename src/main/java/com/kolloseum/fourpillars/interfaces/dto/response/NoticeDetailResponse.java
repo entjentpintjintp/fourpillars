@@ -37,4 +37,9 @@ public class NoticeDetailResponse {
                 result.getCreatedAt(),
                 result.getUpdatedAt());
     }
+
+    public static NoticeDetailResponse of(Long id, String title, String content, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        return new NoticeDetailResponse(id, title, content, createdAt, updatedAt);
+    }
 }
