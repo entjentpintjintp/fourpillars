@@ -11,7 +11,7 @@ spring:
   jpa:
     hibernate:
       #개발 환경에서 스키마 자동 업데이트. 프로덕션인 경우 validate 권장 create-drop
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: false

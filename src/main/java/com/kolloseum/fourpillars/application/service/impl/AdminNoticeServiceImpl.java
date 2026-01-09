@@ -17,14 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminNoticeServiceImpl implements AdminNoticeService {
 
     private final NoticeRepository noticeRepository;
+    private final com.kolloseum.fourpillars.common.utils.HtmlSanitizer htmlSanitizer;
 
     @Override
     @Transactional
     public NoticeResult createNotice(NoticeRequest request) {
         log.info("[AdminNoticeService] Creating notice: title='{}'", request.getTitle());
+
+        String sanitizedContent = htmlSanitizer.sanitize(request.getContent());
+
         Notice notice = Notice.create(
                 request.getTitle(),
-                request.getContent());
+                sanitizedContent);
 
         Notice savedNotice = noticeRepository.save(notice);
         log.info("[AdminNoticeService] Notice created successfully. ID={}", savedNotice.getId());
@@ -38,7 +42,8 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> BusinessException.notFound("Notice not found with id: " + id));
 
-        notice.update(request.getTitle(), request.getContent());
+        String sanitizedContent = htmlSanitizer.sanitize(request.getContent());
+        notice.update(request.getTitle(), sanitizedContent);
         Notice savedNotice = noticeRepository.save(notice);
 
         log.info("[AdminNoticeService] Notice updated successfully. ID={}", savedNotice.getId());
