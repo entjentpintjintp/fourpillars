@@ -210,7 +210,7 @@
                         <td th:text="${term.termsType}"></td>
                         <td th:text="${term.termsVersion}"></td>
                         <td th:text="${#temporals.format(term.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                        <td th:text="${#strings.abbreviate(term.termsContent, 50)}"></td>
+                        <td th:text="${#strings.abbreviate(term.termsContent, 50)}" style="white-space: pre-wrap;"></td>
                     </tr>
                 </tbody>
             </table>
