@@ -18,8 +18,10 @@ public class ResponseMapper {
     // AuthTermsContentQuery → AuthTermsContentResponse
     public static AuthTermsContentResponse toAuthTermsContentResponse(AuthTermsContentQuery query) {
         return AuthTermsContentResponse.of(
-                AuthTermsContentResponse.TermsInfo.of(query.getServiceTermsContent(), query.getServiceTermsVersion()),
-                AuthTermsContentResponse.TermsInfo.of(query.getPrivacyTermsContent(), query.getPrivacyTermsVersion()));
+                AuthTermsContentResponse.TermsInfo.of(stripHtml(query.getServiceTermsContent()),
+                        query.getServiceTermsVersion()),
+                AuthTermsContentResponse.TermsInfo.of(stripHtml(query.getPrivacyTermsContent()),
+                        query.getPrivacyTermsVersion()));
     }
 
     // UserQuery → UserProfileResponse
@@ -49,11 +51,25 @@ public class ResponseMapper {
 
     // NoticeResult → NoticeDetailResponse
     public static NoticeDetailResponse toNoticeDetailResponse(NoticeResult result) {
-        return NoticeDetailResponse.from(result);
+        // Convert <br> back to \n for mobile app display
+        String cleanContent = stripHtml(result.getContent());
+        return NoticeDetailResponse.of(
+                result.getId(),
+                result.getTitle(),
+                cleanContent,
+                result.getCreatedAt(),
+                result.getUpdatedAt());
     }
 
     // NoticeResult -> NoticeListResponse
     public static NoticeListResponse toNoticeListResponse(NoticeResult result) {
         return NoticeListResponse.from(result);
+    }
+
+    private static String stripHtml(String content) {
+        if (content == null)
+            return null;
+        // Replace <br> variations with newline
+        return content.replaceAll("(?i)<br\\s*/?>", "\n");
     }
 }
